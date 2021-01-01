@@ -1,0 +1,16 @@
+asgiref==3.2.7
+beautifulsoup4==4.9.0
+bs4==0.0.1
+Django==3.0.5
+lxml==4.5.0
+mysql==0.0.2
+mysqlclient==2.0.1
+public==2019.4.13
+pyinstaller==4.1
+pyinstaller-hooks-contrib==2020.10
+pyperclip==1.8.1
+python-dateutil==2.8.1
+request==2019.4.13
+requests==2.23.0
+urllib3==1.25.9
+xlrd==1.2.0
