@@ -8,7 +8,7 @@ Then find the file "manage.py" and run the follwoing command: python manage.py r
 
 If you would like to make it into a intranet website, the easiest way is run the following command: python manage.py runserver 0.0.0.0:8000
 
-The other client could visit your IP:8000 to visit the website.
+The other client could visit your_IP:8000 to get access to the website.
 
 If you have any questions, please let me know.
 
