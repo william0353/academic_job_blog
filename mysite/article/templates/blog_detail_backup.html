@@ -1,0 +1,93 @@
+{% extends 'index.html' %}
+
+{% block title%}
+    {{blogs.title|truncatechars:30}}
+{% endblock %}
+
+{% block custom_js %}
+    <script type="text/javascript">
+        //收藏
+        function add_fav(current_elem, blog_id, user_id){
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url:"{% url 'collect_blogs' %}",
+                data:{'blog_id':blog_id, 'user_id':user_id},
+                async: true,
+                beforeSend:function(xhr, settings){
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function(data) {
+                    if(data.status == 'fail'){
+                        if(data.msg == 'not_logged'){
+                            window.location.href="{% url 'register' %}";
+                        }else{
+                            current_elem.text(data.msg)
+                        }
+
+                    }else if(data.status == 'success'){
+                        current_elem.text(data.msg)
+                    }
+                },
+            });
+        }
+
+    $('save').on('click', function(){
+        add_fav($(this), {{ blogs.pk }}, {{user.pk}});
+    });
+    </script>
+{% endblock %}
+
+
+{% block content%}
+
+<div class="container">
+
+      <div class="blog-header">
+        <h1 class="blog-title">{{title}}</h1>
+        <p class="lead blog-description">Posted by {{blogs.university}} at {{blogs.create_time}}</p>
+          <button id="save" onclick="add_fav($(this), {{ blogs.pk }}, {{user.pk}})"> save now </button>
+      </div>
+
+      <div class="row">
+
+        <div class="col-sm-8 blog-main">
+
+          <div class="blog-post">
+              <p class="text-justify">{{content}}</p>
+          <nav>
+            <ul class="pager">
+              <li>
+                  {% if previous %}
+                  <a href="{% url 'blog_detail' previous.pk %}">Previous</a>
+                  {% else%}
+                    <a> No more blogs</a>
+                  {% endif %}
+                </li>
+              <li>
+                  {% if next %}
+                  <a href="{% url 'blog_detail' next.pk %}">Next</a>
+                  {% else%}
+                    <a> No more blogs</a>
+                  {% endif %}
+                </li>
+            </ul>
+          </nav>
+
+
+        </div><!-- /.blog-main -->
+
+        <div class="col-sm-16 col-sm-offset-1 blog-sidebar">
+          <div class="sidebar-module sidebar-module-inset">
+              <h4>Original Source</h4>
+            <p> <em><a href="{{blogs.url}}">{{blogs.url}}</a></em></p>
+
+
+          </div>
+
+        </div><!-- /.blog-sidebar -->
+
+
+
+    </div>
+{% endblock %}

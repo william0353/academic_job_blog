@@ -1,0 +1,262 @@
+{% extends 'index.html' %}
+
+{% block title%}
+My settings
+{% endblock%}
+
+{% block custom_js %}
+<script type="text/javascript" xmlns="http://www.w3.org/1999/html">
+        //收藏
+        function add_fav(current_elem, blog_id, user_id){
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url:"{% url 'collect_blogs' %}",
+                data:{'blog_id':blog_id, 'user_id':user_id},
+                async: true,
+                beforeSend:function(xhr, settings){
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function(data) {
+                    if(data.status == 'fail'){
+                        if(data.msg == 'not_logged'){
+                            window.location.href="{% url 'register' %}";
+                        }else{
+                            current_elem.text(data.msg)
+                        }
+
+                    }else if(data.status == 'success'){
+                        current_elem.text(data.msg)
+                    }
+                },
+            });
+        }
+
+        //delete subscription
+        function del_sub(current_elem, sub_id, user_id){
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url:"{% url 'del_sub' %}",
+                data:{'sub_id':sub_id, 'user_id':user_id},
+                async: true,
+                beforeSend:function(xhr, settings){
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success: function(data) {
+                     if(data.status == 'success'){
+                        var list = document.getElementById(sub_id)
+                        list.style.display = 'none'
+                    }
+                    if(data.status == 'fail'){
+                            current_elem.text(data.msg)
+                        }
+                },
+            });
+        }
+   </script>
+<script>
+    //add new sub
+        function cre_sub(user_id){
+            var country = document.getElementsByName('country');
+            var country_value;
+
+            for (i=0; i<country.length; i++){
+                if (country[i].checked){
+                    if (!country_value){
+                        country_value = country[i].id;
+                    } else {
+                        country_value += "," + country[i].id;
+                    }
+                   }}
+
+            var university = document.getElementsByName('university');
+            var university_value;
+
+            for (i=0; i<university.length; i++){
+                if (university[i].checked){
+                    if (!university_value){
+                        university_value = university[i].id;
+                    } else {
+                        university_value += "," + university[i].id;
+                    }
+                   }}
+
+             var frequency = $('input[name=toggle]:checked').val()
+             var keywords = document.getElementById('keywords').value;
+
+             var keywords = keywords.replace(/[\~|\`|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\-|\_|\+|\=|\||\\|\[|\]|\{|\}|\;|\:|\"|\'|\,|\<|\.|\>|\/|\?|\，|\。|\；|\‘]/g,",")
+             var keyword_test = keywords.replace(/[,]/g,"")
+
+
+            if (keyword_test == '' || keyword_test == undefined || keyword_test == null) {//输入框中输入空格也为空
+                alert('Please enter at least one keyword')
+            } else {
+
+                $.ajax({
+                url: '/user/cre-sub/',
+                type: 'post',
+                data: { 'keywords':keywords, 'country': country_value,'university':university_value,'user_id':user_id, 'fre':frequency},
+                async: true,
+                beforeSend:function(xhr, settings){
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                success:location.reload()
+            });
+
+            }
+
+            }
+
+</script>
+
+
+
+
+{% endblock %}
+
+{% block content %}
+    {% if confirmed == 0 %}
+    <div class="alert alert-warning" role="alert">
+        Your payment is being confirmed. You could use this service as normal. If this warning did not disappear in 3 days please contact: <a href="mailto:xing.fu.wur@gmail.com">xing.fu.wur@gmail.com</a>
+    </div>
+    {% endif %}
+
+<h3> {{heading}}</h3>
+<hr>
+
+
+<div class="row">
+    {% for item in sub %}
+     <div id='{{ item.pk }}' class="col-sm-3" display="">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                <h3>{{ item.key_word }}</h3>
+                <h5>{{ item.discipline|default_if_none:"-" }}</h5>
+                <h5>Alarm frequency: {{ item.frequency}}</h5>
+            </div>
+        <div class="panel-body">
+            <div class="panel-body">
+
+            <ul class="list-group">
+                     <li>Country: {{ item.country_1|default_if_none:""  }} {{item.country_2|default_if_none:"" }} {{item.country_3|default_if_none:"" }} {{item.country_4|default_if_none:"" }} {{item.country_5|default_if_none:"" }}</li>
+                    <li>University:{{item.university_1|default_if_none:"" }} {{item.university_2|default_if_none:"" }} {{item.university_3|default_if_none:"" }} {{item.university_4|default_if_none:"" }} {{item.university_5|default_if_none:"" }}</li>
+
+            </ul>
+            </div>
+
+      </div>
+  <div class="panel-footer">
+      <button type="button" class="btn btn-danger" onclick="del_sub($(this), {{ item.pk }}, {{user.pk}})">Delete</button>
+  </div>
+</div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+ Create
+</button>
+
+<!-- Modal -->
+<div class="modal fade in" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalLabel">Create Subscription</h3>
+      </div>
+
+      <div class="modal-body">
+        <div class="input-group">
+          <div class="input-group-prepend">
+              <h3>Keywords</h3>
+            <h5>Maximal 5 Keywords seperated by "," or ";" or blank</h5>
+          </div>
+            <form class="needs-validation" >
+                <input type="text" class="form-control" id="keywords" required>
+            </form>
+
+        </div>
+
+        <hr>
+
+          <div class="modal-body">
+              <h3> Set your alarm frequency</h3>
+                  <div class="form-check">
+                      <input class="form-check-input" type="radio" name="toggle" id="exampleRadios1" value="per day" checked>
+                      <label class="form-check-label" for="exampleRadios1">
+                        Per day
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="toggle" id="exampleRadios2" value="per week">
+                      <label class="form-check-label" for="exampleRadios2">
+                        Per week
+                      </label>
+                    </div>
+                                   <div class="form-check">
+                      <input class="form-check-input" type="radio" name="toggle" id="exampleRadios3" value="per month" >
+                      <label class="form-check-label" for="exampleRadios3">
+                        Per month (might miss some projects' deadline)
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="toggle" id="exampleRadios4" value="immediately">
+                      <label class="form-check-label" for="exampleRadios4">
+                        Immediately
+                      </label>
+                    </div>
+
+          </div>
+          <hr>
+        <div class="input-group">
+            <h3>Define maximal 5 regions and 5 universites. other than 5 will not be tracked!</h3>
+            <hr>
+            <h3>Countries</h3>
+            <h5>Notice: if you select a country, all universities of this country will be included</h5>
+            <div class="row">
+                {% for item in country_list%}
+                <div class="col-sm-3">
+                    <input name="country" class="form-check-input" type="checkbox" id="{{item.country}}" value="option1">
+                <label class="form-check-label" for="{{item.country}}"> <h4> {{item.country}} </h4></label>
+                <br>
+
+                </div>
+
+            {% endfor %}
+            </div>
+        <hr>
+            <h3>Universities</h3>
+            <div class="row">
+                {% for item in university_list%}
+                <div class="col-sm-6">
+                    <input name="university" class="form-check-input" type="checkbox" id="{{item.university}}" value="option1">
+                <label class="form-check-label" for="{{item.university}}"> <h4> {{item.university}} </h4></label>
+                <br>
+
+                </div>
+
+            {% endfor %}
+            </div>
+        </div>
+
+        </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="cre_sub({{user.pk}})">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+{% endblock%}

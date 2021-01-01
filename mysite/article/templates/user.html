@@ -1,0 +1,104 @@
+{% extends 'index.html' %}
+
+{% block custom_js %}
+<script>
+    //send feedback
+        function feedback(user_id){
+            var feedback = document.getElementById('feedback').value;
+            var url = document.getElementById('url').value;
+
+                $.ajax({
+                url: '/user/feedback/',
+                type: 'post',
+                data: { 'user_id':user_id, 'feedback':feedback, 'url':url},
+                async: true,
+                beforeSend:function(xhr, settings){
+                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                },
+                //success:location.reload()
+                success: alert(feedback)
+            });
+            }
+
+</script>
+{% endblock%}
+
+{% block title%}
+My Profile
+{% endblock%}
+
+{% block content %}
+
+<div class="jumbotron">
+  <h1 class="display-4">Hello, {{name}}!</h1>
+  <p class="lead">Your email for login and receive alerts is {{email}}</p>
+  <hr class="my-4">
+  <p>{% if confirmed == False%}
+    <p>Your alert service is not activated, please order a subscriptions. </p>
+    <p>Or if you paid with 微信/支付宝， your payment is being validated</p>
+
+      {% else %}
+    <p>Email alert ends at {{expire}}</p>
+      {% endif %}</p>
+    <hr class="my-4">
+    <div>
+        <p>Do you have a good idea about our service?</p>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Tell us!</button>
+        <div class="modal fade in" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalLabel">Feedback</h3>
+      </div>
+
+      <div class="modal-body">
+<div class="form-group">
+
+    <textarea class="form-control" id="feedback" rows="6"></textarea>
+  </div>
+        </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="feedback({{user.pk}})">Send!</button>
+      </div>
+    </div>
+  </div>
+        </div>
+    </div>
+    <hr class="my-4">
+    <div>
+        <p>We missed your organization?</p>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#new_url">Tell us!</button>
+        <div class="modal fade in" id="new_url" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Please provide the offical link or just the organization name</h3>
+      </div>
+
+      <div class="modal-body">
+<div class="form-group">
+
+    <input class="form-control" id="url" placeholder="http://">
+  </div>
+        </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="feedback({{user.pk}})">Send!</button>
+      </div>
+    </div>
+  </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+
+
+
+<!-- Modal -->

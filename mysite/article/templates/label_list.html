@@ -1,0 +1,47 @@
+{% extends 'index.html' %}
+
+{% block title%}
+Category
+{% endblock%}
+
+{% block content %}
+    <hr>
+    <h3>Vacancies</h3>
+    {% for types in blog_types %}
+      <a href="vacancies/?type={{types}}"> {{types}} |</a>
+    {% endfor%}
+    <br>
+    <hr>
+
+    <h3>Country </h3>
+    {% for types in blog_countries %}
+        <a href="country/?type={{types}}">  {{types}} |</a>
+    {% endfor%}
+<br>
+    <hr>
+
+
+    <h3>Discipline </h3>
+    {% for types in blog_disc %}
+    <a href="dis/?type={{types}}">   {{types}} |</a>
+    {% endfor%}
+<br>
+    <hr>
+
+    <h3>Region</h3>
+    {% for types in blog_regions %}
+       <a href="rig/?type={{types}}">   {{types}} |</a>
+    {% endfor%}
+<br>
+    <hr>
+
+
+    <h3>Institution name </h3>
+    {% for types in blog_uni %}
+        <a href="ist/?type={{types}}">   {{types}} |</a>
+    {% endfor%}
+    <hr>
+    <br>
+
+
+{% endblock%}
